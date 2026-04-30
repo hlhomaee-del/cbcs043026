@@ -82,9 +82,20 @@ button:hover{transform:translateY(-1px)}
 .ghost{background:#fff;border:1px solid #e3e9f6;color:var(--ink)}
 .flash-link{color:var(--purple);font-weight:950;text-decoration:none}
 .flash-topic{
-  border-radius:26px;padding:20px;background:#fff;border:1px solid #e9edf7;box-shadow:0 10px 28px rgba(30,47,89,.08)
+  --topic-accent:#7a3ff2;
+  --topic-surface:#ffffff;
+  --topic-border:#e9edf7;
+  --topic-front-1:#ffffff;
+  --topic-front-2:#eef5ff;
+  --topic-back-1:#fff8e9;
+  --topic-back-2:#fffef8;
+  --topic-card-border:#e8edf8;
+  --topic-pill-bg:#f0ecff;
+  --topic-pill-text:#7a3ff2;
+  border-radius:26px;padding:20px;background:linear-gradient(180deg,var(--topic-surface),#ffffff);border:1px solid var(--topic-border);box-shadow:0 10px 28px rgba(30,47,89,.08);
+  border-top:8px solid var(--topic-accent)
 }
-.flash-topic h3{margin:0 0 12px;font-size:22px}
+.flash-topic h3{margin:0 0 12px;font-size:22px;color:var(--topic-accent)}
 .flashcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
 .flashcard{
   min-height:170px;perspective:1200px;cursor:pointer;
@@ -93,12 +104,12 @@ button:hover{transform:translateY(-1px)}
 .flashcard.flip .flash-inner{transform:rotateY(180deg)}
 .face{
   position:absolute;inset:0;border-radius:20px;padding:18px;backface-visibility:hidden;display:flex;flex-direction:column;justify-content:center;
-  border:2px solid #e8edf8;box-shadow:0 10px 25px rgba(30,47,89,.09)
+  border:2px solid var(--topic-card-border);box-shadow:0 10px 25px rgba(30,47,89,.09)
 }
-.front{background:linear-gradient(135deg,#ffffff,#eef5ff)}
-.back{background:linear-gradient(135deg,#fff8e9,#fff);transform:rotateY(180deg)}
+.flash-topic .front{background:linear-gradient(135deg,var(--topic-front-1),var(--topic-front-2))}
+.flash-topic .back{background:linear-gradient(135deg,var(--topic-back-1),var(--topic-back-2));transform:rotateY(180deg)}
 .face h4{margin:0 0 8px;font-size:18px}.face p{margin:0;color:#53627b;line-height:1.45}
-.topic-pill{display:inline-block;width:max-content;margin-bottom:10px;padding:6px 9px;border-radius:999px;background:#f0ecff;color:var(--purple);font-weight:900;font-size:12px}
+.flash-topic .topic-pill{display:inline-block;width:max-content;margin-bottom:10px;padding:6px 9px;border-radius:999px;background:var(--topic-pill-bg);color:var(--topic-pill-text);font-weight:900;font-size:12px}
 .summary-box{white-space:pre-wrap;background:#fff;border:1px solid #e5ebf7;border-radius:20px;padding:18px;line-height:1.55}
 textarea{width:100%;min-height:140px;border-radius:18px;border:2px solid #e1e8f7;padding:14px;font:inherit;resize:vertical}
 .metric{background:#fff;border-radius:18px;border:1px solid #e7ecf8;padding:16px}
@@ -195,6 +206,19 @@ textarea{width:100%;min-height:140px;border-radius:18px;border:2px solid #e1e8f7
 
 <script>
 const ABC = ["A","B","C","D"];
+const flashPalette = [
+  {accent:"#d85c83",surface:"#fff7fa",border:"#f3cad8",front1:"#fffafb",front2:"#ffeaf0",back1:"#fff1f5",back2:"#fff9fb",cardBorder:"#efc5d3",pillBg:"#ffe2ea",pillText:"#b7436b"},
+  {accent:"#e07a42",surface:"#fff9f4",border:"#f4d6c5",front1:"#fffaf7",front2:"#ffeddc",back1:"#fff4eb",back2:"#fffaf6",cardBorder:"#efcfbc",pillBg:"#ffe5d2",pillText:"#bf5d24"},
+  {accent:"#d9a21f",surface:"#fffdf5",border:"#efe1b2",front1:"#fffef9",front2:"#fff3cf",back1:"#fff8e4",back2:"#fffdf6",cardBorder:"#e8d89f",pillBg:"#fff0bf",pillText:"#a67808"},
+  {accent:"#98ad2f",surface:"#fbfdf4",border:"#dfe8bb",front1:"#fefff9",front2:"#eef7d3",back1:"#f7faea",back2:"#fcfef7",cardBorder:"#d1dfaa",pillBg:"#eaf5c7",pillText:"#728415"},
+  {accent:"#46a65f",surface:"#f7fcf8",border:"#cbe8d2",front1:"#fbfffc",front2:"#e4f6e8",back1:"#edf9f0",back2:"#fafdfa",cardBorder:"#c0dfc7",pillBg:"#daf1df",pillText:"#2f7b43"},
+  {accent:"#2fa387",surface:"#f5fcfb",border:"#c4e7df",front1:"#fbfffe",front2:"#def5ef",back1:"#ebfaf6",back2:"#fbfefd",cardBorder:"#b9ddd5",pillBg:"#d4efe8",pillText:"#1d7b65"},
+  {accent:"#2f93b3",surface:"#f4fbfd",border:"#c4e2ec",front1:"#fbfeff",front2:"#dff2f8",back1:"#ecf8fb",back2:"#fbfeff",cardBorder:"#b6d8e4",pillBg:"#d6eef5",pillText:"#1e708b"},
+  {accent:"#4676d8",surface:"#f5f8ff",border:"#cdd9f5",front1:"#fbfcff",front2:"#e3ebff",back1:"#eef3ff",back2:"#fbfcff",cardBorder:"#c1cff0",pillBg:"#dce5ff",pillText:"#3058b2"},
+  {accent:"#6b61d9",surface:"#f7f6ff",border:"#d8d3f5",front1:"#fcfbff",front2:"#e9e6ff",back1:"#f3f1ff",back2:"#fcfbff",cardBorder:"#ccc6ef",pillBg:"#e4e0ff",pillText:"#5148b4"},
+  {accent:"#9556cf",surface:"#faf6ff",border:"#e3d3f2",front1:"#fefbff",front2:"#f1e5ff",back1:"#f8f0ff",back2:"#fefcff",cardBorder:"#d8c4ea",pillBg:"#eedfff",pillText:"#7740ad"},
+  {accent:"#bf5eb3",surface:"#fff7fd",border:"#edcfee",front1:"#fffafe",front2:"#f9e5f7",back1:"#fdf0fb",back2:"#fffafe",cardBorder:"#e0c3df",pillBg:"#f5def4",pillText:"#9a3d8f"}
+];
 const questions = [
 {
 topic:"Insurance Basics + Patient Responsibility", flash:"insurance",
@@ -608,10 +632,21 @@ function resetQuiz(){
 function renderFlashcards(){
   const container=document.getElementById('flashcardContainer');
   container.innerHTML="";
-  Object.entries(flashTopics).forEach(([key,t])=>{
+  Object.entries(flashTopics).forEach(([key,t],index)=>{
     const wrap=document.createElement('div');
+    const palette=flashPalette[index % flashPalette.length];
     wrap.className='flash-topic col-6';
     wrap.id='flash-'+key;
+    wrap.style.setProperty('--topic-accent',palette.accent);
+    wrap.style.setProperty('--topic-surface',palette.surface);
+    wrap.style.setProperty('--topic-border',palette.border);
+    wrap.style.setProperty('--topic-front-1',palette.front1);
+    wrap.style.setProperty('--topic-front-2',palette.front2);
+    wrap.style.setProperty('--topic-back-1',palette.back1);
+    wrap.style.setProperty('--topic-back-2',palette.back2);
+    wrap.style.setProperty('--topic-card-border',palette.cardBorder);
+    wrap.style.setProperty('--topic-pill-bg',palette.pillBg);
+    wrap.style.setProperty('--topic-pill-text',palette.pillText);
     wrap.innerHTML=`<h3>${t.title}</h3><div class="flashcards">${t.cards.map(c=>`
       <div class="flashcard" onclick="this.classList.toggle('flip')">
         <div class="flash-inner">
