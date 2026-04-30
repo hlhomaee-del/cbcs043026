@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NHA CBCS Higher-Order Practice Lab</title>
+<style>
+:root{
+  --ink:#152033;--muted:#61708a;--paper:#ffffff;--cream:#fff8ee;--blue:#3157d5;--cyan:#19a7ce;--purple:#7a3ff2;
+  --pink:#ff5ea8;--green:#1f9d63;--red:#d93b4c;--orange:#f49b2f;--gold:#f8c630;--soft:#eef4ff;
+  --shadow:0 18px 50px rgba(30,47,89,.16);--radius:24px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 8% 8%, rgba(255,94,168,.22), transparent 28%),
+    radial-gradient(circle at 88% 12%, rgba(25,167,206,.22), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(122,63,242,.16), transparent 40%),
+    linear-gradient(135deg,#fff9f2,#f4f7ff 52%,#fff4fb);
+  min-height:100vh;
+}
+header{
+  padding:34px 28px 20px;max-width:1180px;margin:auto;
+}
+.hero{
+  background:rgba(255,255,255,.78);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.88);
+  border-radius:32px;padding:28px;box-shadow:var(--shadow);position:relative;overflow:hidden;
+}
+.hero:before{content:"";position:absolute;inset:-60px auto auto -60px;width:190px;height:190px;background:var(--gold);opacity:.25;border-radius:50%}
+.hero h1{margin:0;font-size:clamp(30px,5vw,58px);line-height:1.02;letter-spacing:-.04em}
+.hero p{max-width:880px;color:var(--muted);font-size:18px;line-height:1.55;margin:14px 0 0}
+.badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.badge{padding:9px 13px;border-radius:999px;background:#fff;border:1px solid #e9edf7;font-weight:800;font-size:13px}
+.badge:nth-child(1){color:var(--blue)}.badge:nth-child(2){color:var(--pink)}.badge:nth-child(3){color:var(--green)}.badge:nth-child(4){color:var(--purple)}
+main{max-width:1180px;margin:auto;padding:0 28px 50px}
+.nav{
+  display:flex;gap:10px;flex-wrap:wrap;margin:18px 0;position:sticky;top:0;z-index:20;
+  padding:10px;background:rgba(255,255,255,.75);backdrop-filter:blur(12px);border-radius:20px;border:1px solid #edf1fb
+}
+.nav button,.primary,.ghost{
+  border:none;border-radius:16px;padding:12px 16px;font-weight:900;cursor:pointer;transition:.18s transform,.18s box-shadow,.18s background;
+}
+.nav button{background:#fff;color:var(--ink);border:1px solid #e7ecf8}
+.nav button.active{background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;box-shadow:0 8px 24px rgba(49,87,213,.28)}
+button:hover{transform:translateY(-1px)}
+.section{display:none}.section.active{display:block}
+.card{
+  background:rgba(255,255,255,.88);border:1px solid rgba(255,255,255,.92);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:24px;margin:18px 0;
+}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+.col-4{grid-column:span 4}.col-6{grid-column:span 6}.col-8{grid-column:span 8}.col-12{grid-column:span 12}
+@media(max-width:850px){.col-4,.col-6,.col-8{grid-column:span 12}.nav{position:relative}}
+.progress-wrap{height:14px;background:#e9eefb;border-radius:999px;overflow:hidden}
+.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--pink),var(--orange),var(--green),var(--cyan),var(--purple));transition:.3s width}
+.q-top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.q-num{font-weight:950;color:var(--blue);letter-spacing:.08em;text-transform:uppercase;font-size:13px}
+.q-topic{display:inline-block;margin-top:8px;padding:7px 10px;border-radius:999px;background:#eef4ff;color:#2444a8;font-weight:900;font-size:12px}
+.scenario{background:linear-gradient(135deg,#fff7db,#fff);border-left:7px solid var(--orange);border-radius:18px;padding:16px;margin:16px 0;line-height:1.56}
+.question-text{font-size:22px;font-weight:950;line-height:1.25;margin:10px 0}
+.options{display:grid;gap:12px;margin-top:16px}
+.option{
+  text-align:left;background:#fff;border:2px solid #e5ebf7;border-radius:20px;padding:15px 16px;font-size:16px;line-height:1.35;
+  display:flex;gap:12px;align-items:flex-start;cursor:pointer;box-shadow:0 5px 18px rgba(27,39,77,.05)
+}
+.option .letter{flex:0 0 32px;height:32px;display:grid;place-items:center;border-radius:10px;background:#edf3ff;color:var(--blue);font-weight:950}
+.option.correct{border-color:rgba(31,157,99,.75);box-shadow:0 0 0 5px rgba(31,157,99,.14),0 12px 24px rgba(31,157,99,.18)}
+.option.correct .letter{background:var(--green);color:#fff}
+.option.wrong{border-color:rgba(217,59,76,.65);box-shadow:0 0 0 5px rgba(217,59,76,.11)}
+.option.wrong .letter{background:var(--red);color:#fff}
+.feedback{display:none;margin-top:16px;border-radius:22px;padding:18px;background:#f8fbff;border:1px solid #dfe8fb}
+.feedback.show{display:block}
+.feedback h3{margin:0 0 8px}
+.rationale-grid{display:grid;gap:10px;margin-top:12px}
+.rationale{background:#fff;border:1px solid #e8edf8;border-radius:16px;padding:12px;line-height:1.45}
+.rationale b{color:var(--blue)}
+.designer{background:#f4efff;border-left:6px solid var(--purple);border-radius:16px;padding:14px;margin-top:12px;line-height:1.5}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.primary{background:linear-gradient(135deg,var(--blue),var(--purple));color:white;box-shadow:0 12px 24px rgba(49,87,213,.23)}
+.ghost{background:#fff;border:1px solid #e3e9f6;color:var(--ink)}
+.flash-link{color:var(--purple);font-weight:950;text-decoration:none}
+.flash-topic{
+  border-radius:26px;padding:20px;background:#fff;border:1px solid #e9edf7;box-shadow:0 10px 28px rgba(30,47,89,.08)
+}
+.flash-topic h3{margin:0 0 12px;font-size:22px}
+.flashcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.flashcard{
+  min-height:170px;perspective:1200px;cursor:pointer;
+}
+.flash-inner{position:relative;width:100%;height:100%;min-height:170px;transition:transform .55s;transform-style:preserve-3d}
+.flashcard.flip .flash-inner{transform:rotateY(180deg)}
+.face{
+  position:absolute;inset:0;border-radius:20px;padding:18px;backface-visibility:hidden;display:flex;flex-direction:column;justify-content:center;
+  border:2px solid #e8edf8;box-shadow:0 10px 25px rgba(30,47,89,.09)
+}
+.front{background:linear-gradient(135deg,#ffffff,#eef5ff)}
+.back{background:linear-gradient(135deg,#fff8e9,#fff);transform:rotateY(180deg)}
+.face h4{margin:0 0 8px;font-size:18px}.face p{margin:0;color:#53627b;line-height:1.45}
+.topic-pill{display:inline-block;width:max-content;margin-bottom:10px;padding:6px 9px;border-radius:999px;background:#f0ecff;color:var(--purple);font-weight:900;font-size:12px}
+.summary-box{white-space:pre-wrap;background:#fff;border:1px solid #e5ebf7;border-radius:20px;padding:18px;line-height:1.55}
+textarea{width:100%;min-height:140px;border-radius:18px;border:2px solid #e1e8f7;padding:14px;font:inherit;resize:vertical}
+.metric{background:#fff;border-radius:18px;border:1px solid #e7ecf8;padding:16px}
+.metric strong{font-size:28px;display:block;color:var(--blue)}
+.small{font-size:13px;color:var(--muted)}
+.print-only{display:none}
+.confetti{position:fixed;width:10px;height:14px;top:-20px;z-index:9999;border-radius:3px;animation:fall 950ms linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(720deg);opacity:.2}}
+@media print{
+  body{background:#fff;color:#000}
+  header,.nav,.controls,.ghost,.primary,.option:not(.answered-print),#practice .controls{display:none!important}
+  main{max-width:none;padding:0}
+  .section{display:block!important}
+  .card,.flash-topic,.metric{box-shadow:none;border:1px solid #bbb;break-inside:avoid}
+  .print-only{display:block}
+  .feedback{display:block!important}
+  .option{box-shadow:none}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="hero">
+    <h1>NHA CBCS Practice Lab</h1>
+    <p>Higher-order billing and coding practice for insurance basics, plan types, CMS-1500 logic, ICD/CPT reasoning, modifiers, denials, rejections, claim cycle, Medicare, Medicaid, Stark Law, HIPAA, and reimbursement thinking.</p>
+    <div class="badges">
+      <span class="badge">20 scenario questions</span>
+      <span class="badge">Flashcard references</span>
+      <span class="badge">Quiet timing + reflection</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="nav">
+    <button class="active" onclick="showSection('practice',this)">Practice</button>
+    <button onclick="showSection('flashcards',this)">Flashcards</button>
+    <button onclick="showSection('report',this)">Reflection Report</button>
+    <button onclick="window.print()">Print / Save as PDF</button>
+  </div>
+
+  <section id="practice" class="section active">
+    <div class="card">
+      <div class="q-top">
+        <div>
+          <div class="q-num" id="qNum">Question 1 of 20</div>
+          <div class="q-topic" id="qTopic"></div>
+        </div>
+        <div class="small">This activity tracks time quietly. Students do not need to watch the clock.</div>
+      </div>
+      <div style="margin-top:16px" class="progress-wrap"><div id="progressBar" class="progress-bar"></div></div>
+      <div id="scenario" class="scenario"></div>
+      <div id="questionText" class="question-text"></div>
+      <div id="options" class="options"></div>
+      <div id="feedback" class="feedback"></div>
+      <div class="controls">
+        <button class="ghost" onclick="prevQuestion()">Previous</button>
+        <button class="primary" onclick="nextQuestion()">Next</button>
+        <button class="ghost" onclick="showSection('flashcards')">Open Flashcards</button>
+        <button class="ghost" onclick="resetQuiz()">Reset Quiz</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="flashcards" class="section">
+    <div class="card">
+      <h2>Flashcard Library</h2>
+      <p class="small">Click any card to flip it. Each question links back to the topic students should review.</p>
+      <div id="flashcardContainer" class="grid"></div>
+    </div>
+  </section>
+
+  <section id="report" class="section">
+    <div class="card">
+      <h2>Reflection Report</h2>
+      <p class="small">The report updates as students answer. They can type their own reflection, generate the final summary, then print or save as PDF.</p>
+      <div class="grid">
+        <div class="metric col-4"><strong id="scoreMetric">0/20</strong><span>Score</span></div>
+        <div class="metric col-4"><strong id="timeMetric">0:00</strong><span>Total active time</span></div>
+        <div class="metric col-4"><strong id="needsMetric">—</strong><span>Highest-priority topic</span></div>
+      </div>
+      <h3>Student reflection</h3>
+      <textarea id="studentReflection" placeholder="What did you miss? What confused you? What will you study next?"></textarea>
+      <div class="controls">
+        <button class="primary" onclick="generateReport()">Generate Summary</button>
+        <button class="ghost" onclick="copyReport()">Copy Summary</button>
+        <button class="ghost" onclick="window.print()">Print / Save as PDF</button>
+      </div>
+      <h3>Generated summary</h3>
+      <div id="summary" class="summary-box">Answer questions first, then generate the summary.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const ABC = ["A","B","C","D"];
+const questions = [
+{
+topic:"Insurance Basics + Patient Responsibility", flash:"insurance",
+scenario:"A patient has a PPO plan with a $30 office copay, a $1,500 deductible, 20% coinsurance after the deductible, and an out-of-pocket maximum. The front desk has verified eligibility for today’s visit.",
+question:"Which statement best shows that the billing specialist understands patient responsibility before the claim is adjudicated?",
+options:[
+{text:"Collect the listed copay and explain that later payer processing may add responsibility.", correct:true, why:"Correct. The copay can often be collected at the visit, but deductible and coinsurance usually require payer adjudication before the final patient balance is known."},
+{text:"Collect the full deductible because the provider has not received reimbursement yet.", correct:false, why:"Not best. A deductible may apply, but the exact allowed amount and patient portion depend on payer processing and the contract."},
+{text:"Waive the copay because coinsurance may also be owed after processing.", correct:false, why:"Incorrect. Routine copay waiver can create compliance and payer-contract problems unless a valid policy-based exception applies."},
+{text:"Bill only the payer because patient responsibility cannot be discussed before adjudication.", correct:false, why:"Incorrect. Staff may discuss benefits and collect known amounts, while clarifying that final responsibility depends on claim processing."}
+],
+designer:"The test designer is checking whether students separate verified benefits from final adjudicated responsibility. A real biller does not guess the final balance, but also does not ignore known copay information."
+},
+{
+topic:"Plan Types + Referrals", flash:"plantypes",
+scenario:"A patient enrolled in an HMO visits a dermatologist without a primary care referral. The service is medically appropriate, but the payer returns a message requesting referral documentation.",
+question:"What is the strongest billing judgment before resubmitting or appealing this claim?",
+options:[
+{text:"Check whether the plan requires a referral and obtain supporting authorization documentation.", correct:true, why:"Correct. HMO plans commonly require primary-care coordination or referral rules. The biller must verify payer requirements before resubmission."},
+{text:"Change the diagnosis code to show that the visit was medically necessary.", correct:false, why:"Incorrect. Medical necessity does not erase a plan referral requirement. Coding should reflect documentation, not payer pressure."},
+{text:"Add a modifier to show the specialist service was separately identifiable.", correct:false, why:"Incorrect. A modifier cannot replace missing referral or authorization documentation."},
+{text:"Submit the same claim again because the service was clinically reasonable.", correct:false, why:"Incorrect. Resubmitting without fixing the payer’s stated requirement wastes time and may produce another denial."}
+],
+designer:"This question tests payer-requirement reasoning. The exam wants students to know that coverage rules, authorization, and referral requirements are different from medical necessity."
+},
+{
+topic:"CMS-1500 Field Logic", flash:"cms1500",
+scenario:"A paper CMS-1500 is being prepared for an office visit. The coder has the ICD-10-CM diagnosis, CPT code, modifier, place of service, date of service, and charge amount.",
+question:"Which CMS-1500 area is most directly used to connect the service line to the diagnosis supporting it?",
+options:[
+{text:"Diagnosis pointer on the service line that links the procedure to the listed diagnosis.", correct:true, why:"Correct. The diagnosis pointer connects each service line to the diagnosis code that supports medical necessity."},
+{text:"Patient relationship field that identifies whether the patient is the subscriber.", correct:false, why:"Incorrect. Relationship information supports coverage identification, not procedure-to-diagnosis linkage."},
+{text:"Provider signature field that certifies the claim is authorized for submission.", correct:false, why:"Incorrect. Signature authorizes submission but does not explain why a service was medically necessary."},
+{text:"Insurance group number field that identifies the payer’s benefit plan category.", correct:false, why:"Incorrect. Group number helps identify coverage, not the clinical reason for the procedure."}
+],
+designer:"The test designer is checking whether students understand the logic inside Box 24, especially the link between diagnosis and procedure. Medical necessity is shown through documentation plus correct diagnosis pointer logic."
+},
+{
+topic:"Rejection vs Denial", flash:"claimcycle",
+scenario:"A claim is returned within hours because the subscriber ID has the wrong number of digits. It never reached payer medical review.",
+question:"How should the billing specialist classify the problem and respond?",
+options:[
+{text:"Treat it as a rejection, correct the demographic error, and resubmit cleanly.", correct:true, why:"Correct. A front-end or format/data problem that prevents claim processing is a rejection. Correct and resubmit."},
+{text:"Treat it as a denial, write an appeal letter, and attach clinical notes.", correct:false, why:"Incorrect. Appeals are for denied claims after payer adjudication, not basic data rejections."},
+{text:"Treat it as underpayment, post the balance, and transfer it to patient responsibility.", correct:false, why:"Incorrect. There was no adjudication or allowed amount decision, so this is not underpayment."},
+{text:"Treat it as coordination of benefits, then bill the secondary payer first.", correct:false, why:"Incorrect. Nothing in the scenario indicates another payer or primary/secondary confusion."}
+],
+designer:"The exam often tests vocabulary through workflow. Rejection means the claim failed early. Denial means the payer processed it and refused payment for a reason."
+},
+{
+topic:"ICD-10-CM Coding Logic", flash:"icd",
+scenario:"A provider note says: cough, fever, and fatigue. Assessment: community-acquired pneumonia. Chest x-ray ordered. Antibiotic prescribed. No organism is documented.",
+question:"Which coding logic is most defensible for the diagnosis portion of the claim?",
+options:[
+{text:"Code pneumonia as documented, using an unspecified organism when no organism is named.", correct:true, why:"Correct. Once the provider documents pneumonia, code the confirmed diagnosis. If the organism is not specified, use the appropriate unspecified organism option."},
+{text:"Code only cough and fever because the organism was not identified in the note.", correct:false, why:"Incorrect. Symptoms are generally not coded separately when a confirmed diagnosis explains them, unless guidelines or payer rules require otherwise."},
+{text:"Code bacterial pneumonia because antibiotics were prescribed during the encounter.", correct:false, why:"Incorrect. Treatment does not prove the organism. Coders do not infer bacterial cause unless documented."},
+{text:"Code rule-out pneumonia because the chest x-ray result is not available yet.", correct:false, why:"Incorrect. The provider assessed pneumonia, not merely rule-out pneumonia. Outpatient coding does not code uncertain diagnoses as confirmed."}
+],
+designer:"This is a classic test-designer trap: do not code symptoms when a confirmed diagnosis explains them, and do not invent specificity that the provider did not document."
+},
+{
+topic:"CPT + Documentation Support", flash:"cpt",
+scenario:"A note states: established patient visit for worsening asthma, detailed history, exam, medication adjustment, and inhaler teaching. The claim includes an office E/M code and a nebulizer treatment code.",
+question:"What must the biller verify before accepting both codes on the claim?",
+options:[
+{text:"The documentation supports each billed service and shows each service was actually performed.", correct:true, why:"Correct. CPT coding must match performed and documented services. Medical necessity and documentation must support each line."},
+{text:"The provider used a diagnosis code with the highest possible level of severity.", correct:false, why:"Incorrect. Diagnosis specificity matters, but coders cannot increase severity unless the provider documents it."},
+{text:"The patient’s insurance card includes both a medical and pharmacy benefit section.", correct:false, why:"Incorrect. Benefit details may matter, but they do not prove that a billable procedure occurred."},
+{text:"The patient signed the registration form during a previous office encounter.", correct:false, why:"Incorrect. Registration supports administrative workflow, not CPT support for services performed today."}
+],
+designer:"The test designer wants students to connect CPT to the provider note. If it was not documented as performed, it should not be billed."
+},
+{
+topic:"Modifiers", flash:"modifiers",
+scenario:"During one encounter, a patient receives a minor procedure and a separately documented, significant evaluation for a new complaint. The E/M service is above and beyond the usual pre-procedure assessment.",
+question:"Which modifier concept best fits the separately documented E/M service?",
+options:[
+{text:"Modifier 25 for a significant, separately identifiable E/M on the same day.", correct:true, why:"Correct. Modifier 25 identifies a significant, separately identifiable E/M service on the same day as another procedure or service."},
+{text:"Modifier 59 for a distinct procedural service at a separate encounter.", correct:false, why:"Not the best fit. Modifier 59 is a distinct procedural service concept; the scenario is specifically an E/M plus procedure issue."},
+{text:"Modifier 51 for multiple procedures performed during the same operative session.", correct:false, why:"Incorrect. Modifier 51 relates to multiple procedures, not a separately identifiable E/M service."},
+{text:"Modifier 24 for unrelated E/M during a global postoperative period.", correct:false, why:"Incorrect. Modifier 24 applies to an unrelated E/M during a postoperative global period, which is not described here."}
+],
+designer:"The test designer is checking modifier discrimination. Students must read the description, not just memorize that modifiers mean “extra information.”"
+},
+{
+topic:"Medicare Basics", flash:"medicare",
+scenario:"A 72-year-old patient with Medicare asks why the practice still verifies eligibility each visit even though the patient has had Medicare for years.",
+question:"Which explanation is most accurate for a billing and coding student?",
+options:[
+{text:"Eligibility, coverage details, and secondary insurance can change and must be verified.", correct:true, why:"Correct. Medicare status, secondary payer information, plan choice, and coverage details can change; verification protects the patient and the practice."},
+{text:"Medicare eligibility ends every year and must be fully renewed by the practice.", correct:false, why:"Incorrect. Medicare does not automatically end each year; however, plan and coverage details can change."},
+{text:"Medicare always pays every covered service without deductible or coinsurance.", correct:false, why:"Incorrect. Medicare has deductibles, coinsurance, coverage rules, and medical necessity requirements."},
+{text:"Eligibility verification is optional once the patient has a Medicare card.", correct:false, why:"Incorrect. A card alone does not guarantee current eligibility, correct payer order, or coverage for the service."}
+],
+designer:"The exam wants practical revenue-cycle thinking. Eligibility is not a one-time event; it is a repeated risk-control step."
+},
+{
+topic:"Medicaid Basics", flash:"medicaid",
+scenario:"A patient states that Medicaid paid for a service last year. This year, the claim denies because the patient is not active on the date of service.",
+question:"Which conclusion is the most appropriate?",
+options:[
+{text:"Medicaid eligibility can change, so date-specific verification is required before service.", correct:true, why:"Correct. Medicaid eligibility is income/program based and can change. Verification must be tied to the date of service."},
+{text:"Medicaid eligibility is permanent once a patient receives a member identification number.", correct:false, why:"Incorrect. Medicaid eligibility can change with income, renewal, residency, or program status."},
+{text:"Medicaid always becomes secondary when a patient has any past coverage history.", correct:false, why:"Incorrect. Payer order depends on current coverage and coordination rules, not merely past coverage."},
+{text:"Medicaid denial means the diagnosis code should be changed to a covered condition.", correct:false, why:"Incorrect. Never change diagnosis coding just to obtain payment; codes must match documentation."}
+],
+designer:"This question tests whether students understand Medicaid as date-specific coverage, not a permanent payment guarantee."
+},
+{
+topic:"Stark Law + Compliance", flash:"compliance",
+scenario:"A physician refers Medicare patients for designated imaging services to a facility owned by the physician’s immediate family member, and no exception has been documented.",
+question:"Which compliance concern is most directly raised by this scenario?",
+options:[
+{text:"Stark Law because physician self-referral for designated health services may be prohibited.", correct:true, why:"Correct. Stark Law addresses physician self-referral for certain designated health services payable by Medicare or Medicaid unless an exception applies."},
+{text:"EMTALA because emergency screening and stabilization were not fully documented.", correct:false, why:"Incorrect. EMTALA concerns emergency medical screening and stabilizing treatment, not ownership-based self-referral."},
+{text:"HIPAA because the diagnosis code was disclosed on the insurance claim.", correct:false, why:"Incorrect. Claims require protected health information for payment operations; the issue is referral/financial relationship."},
+{text:"COBRA because the patient may need continuing employer-based insurance coverage.", correct:false, why:"Incorrect. COBRA concerns continuation of employer-sponsored health coverage after qualifying events."}
+],
+designer:"The test designer is checking law recognition through a scenario. Stark Law is not about privacy or emergency care; it is about certain financial referral relationships."
+},
+{
+topic:"HIPAA + Minimum Necessary", flash:"compliance",
+scenario:"A biller needs to discuss a denied claim with the payer. The payer asks for documentation related to the service under review.",
+question:"Which action best follows privacy and billing workflow principles?",
+options:[
+{text:"Share only the claim-related documentation needed to review the payment issue.", correct:true, why:"Correct. HIPAA permits disclosures for payment operations, but the biller should limit information to what is needed for the claim issue."},
+{text:"Send the entire chart because any payer request overrides privacy limitations.", correct:false, why:"Incorrect. Payer requests do not automatically justify sending unrelated portions of the record."},
+{text:"Refuse all documentation because diagnosis information is protected health information.", correct:false, why:"Incorrect. PHI can be disclosed for payment purposes when appropriate; the issue is limiting the disclosure."},
+{text:"Ask the patient to rewrite the provider’s note before sending the appeal.", correct:false, why:"Incorrect. Patients do not rewrite clinical documentation for claim review."}
+],
+designer:"This tests the balance between privacy and payment. HIPAA does not mean never share; it means share appropriately and not excessively."
+},
+{
+topic:"Medical Necessity", flash:"medicalnecessity",
+scenario:"A provider orders a diagnostic test. The claim has a valid CPT code, but the diagnosis pointer links the test to a past history code that does not support why the test was needed today.",
+question:"What is the most likely claim problem?",
+options:[
+{text:"Medical necessity is weak because the linked diagnosis does not justify today’s test.", correct:true, why:"Correct. A valid CPT code can still deny if the diagnosis pointer does not support the service’s medical necessity."},
+{text:"The claim is automatically payable because the CPT code is listed correctly.", correct:false, why:"Incorrect. Correct CPT format is not enough; the diagnosis must support the service."},
+{text:"The claim should be changed to preventive care because history codes are present.", correct:false, why:"Incorrect. A history code does not automatically make a service preventive."},
+{text:"The claim should remove all diagnoses because the procedure code explains itself.", correct:false, why:"Incorrect. Procedure codes do not explain medical necessity alone; diagnosis linkage matters."}
+],
+designer:"The test designer is checking the relationship between ICD, CPT, and the diagnosis pointer. Students must think like claim reviewers."
+},
+{
+topic:"Adjudication + EOB/ERA", flash:"claimcycle",
+scenario:"A payer processes a claim and sends an ERA showing allowed amount, contractual adjustment, deductible applied, and patient responsibility.",
+question:"Which statement best describes what happened in the claim cycle?",
+options:[
+{text:"The claim was adjudicated, and payment responsibility was determined by payer rules.", correct:true, why:"Correct. Adjudication is payer processing that determines payment, adjustments, denial reasons, and patient responsibility."},
+{text:"The claim was rejected because the patient responsibility field appeared on the ERA.", correct:false, why:"Incorrect. Rejection occurs before adjudication. An ERA with allowed amount and deductible shows processing occurred."},
+{text:"The claim was coded because the payer assigned CPT codes during payment review.", correct:false, why:"Incorrect. Providers/coders submit codes; payers adjudicate the submitted claim."},
+{text:"The claim was registered because demographic information was collected after payment.", correct:false, why:"Incorrect. Registration occurs at the beginning of the revenue cycle, not after payer processing."}
+],
+designer:"The exam expects students to know the sequence: registration, eligibility, coding, claim submission, adjudication, posting, patient billing/follow-up."
+},
+{
+topic:"Coordination of Benefits", flash:"insurance",
+scenario:"A patient has employer group insurance and Medicaid. The claim was sent to Medicaid first and denied with a COB-related message.",
+question:"What should the biller evaluate next?",
+options:[
+{text:"Whether another payer is primary and Medicaid should be billed after primary processing.", correct:true, why:"Correct. Medicaid is often payer of last resort. The biller should verify primary coverage and bill in the correct order."},
+{text:"Whether the diagnosis should be made more severe to force Medicaid payment.", correct:false, why:"Incorrect. Diagnosis codes must reflect documentation, not payer strategy."},
+{text:"Whether the CPT code should be deleted because Medicaid denied the first claim.", correct:false, why:"Incorrect. A COB denial does not prove the procedure code is wrong."},
+{text:"Whether the patient should be billed immediately for the full billed charge.", correct:false, why:"Incorrect. Patient billing before correct payer sequencing can be improper and confusing."}
+],
+designer:"This question tests payer-order thinking. COB problems are administrative sequencing issues, not automatic coding failures."
+},
+{
+topic:"CMS-1500 Modifiers + Service Line", flash:"cms1500",
+scenario:"A procedure requires a CPT code and two modifiers. The student is entering the service line on a CMS-1500 paper form.",
+question:"Where should the modifiers be placed in relation to the procedure code?",
+options:[
+{text:"On the service line with the procedure code in the modifier area.", correct:true, why:"Correct. Modifiers are reported with the service line procedure code, not in diagnosis or demographic fields."},
+{text:"Inside the diagnosis list because modifiers explain why the patient was treated.", correct:false, why:"Incorrect. Diagnosis codes explain the condition; modifiers explain circumstances of a service or procedure."},
+{text:"In the patient address section because modifiers clarify payer routing details.", correct:false, why:"Incorrect. Demographic fields do not carry coding modifiers."},
+{text:"In the provider signature area because modifiers certify medical necessity.", correct:false, why:"Incorrect. Signature authorization is not where procedure modifiers are reported."}
+],
+designer:"This is nitty-gritty CMS-1500 logic: students need to know that service-line information lives together—date, POS, procedure, modifiers, diagnosis pointer, charges, units."
+},
+{
+topic:"Insurance History + Acts", flash:"history",
+scenario:"A student says, “Health insurance is only a modern reimbursement tool; the test will not connect it to laws or social programs.”",
+question:"Which response best corrects the student’s thinking for CBCS preparation?",
+options:[
+{text:"Insurance history matters because laws and programs shaped coverage, billing, and compliance.", correct:true, why:"Correct. CBCS students should understand how programs and laws influence coverage rules, payer requirements, patient rights, and billing workflow."},
+{text:"Insurance history matters only when coding inpatient surgical procedures.", correct:false, why:"Incorrect. Insurance history and laws affect many parts of billing, eligibility, compliance, and reimbursement."},
+{text:"Insurance history is unrelated because coders only translate provider notes.", correct:false, why:"Incorrect. Billing and coding specialists must understand payer rules, regulatory compliance, and revenue-cycle context."},
+{text:"Insurance history replaces the need to understand CMS-1500 claim fields.", correct:false, why:"Incorrect. Historical context helps, but students still need claim-form and workflow skills."}
+],
+designer:"The test plan includes revenue cycle and regulatory compliance. Students should not dismiss laws, programs, and payer evolution as background trivia."
+},
+{
+topic:"Prior Authorization", flash:"plantypes",
+scenario:"A payer denies an MRI because prior authorization was required. The provider’s note clearly supports medical necessity, and the CPT/ICD linkage is accurate.",
+question:"Which explanation best distinguishes the denial reason?",
+options:[
+{text:"The service may be medically necessary but still fail payer authorization requirements.", correct:true, why:"Correct. Medical necessity and authorization are related but different. A payer may deny for missing prior authorization even when the documentation is clinically strong."},
+{text:"The service cannot be medically necessary if prior authorization was not obtained.", correct:false, why:"Incorrect. Missing authorization does not prove the service was unnecessary; it means the payer process was not followed."},
+{text:"The diagnosis code must be wrong because authorization denials are coding denials.", correct:false, why:"Incorrect. Authorization denial is a payer-requirement issue, not automatically a coding error."},
+{text:"The claim should become patient responsibility before checking payer contract rules.", correct:false, why:"Incorrect. The practice must review payer rules, authorization policy, ABN/financial policy, and appeal options before billing the patient."}
+],
+designer:"The exam wants students to separate categories of denial: coding, medical necessity, authorization, eligibility, COB, and timely filing."
+},
+{
+topic:"Timely Filing", flash:"claimcycle",
+scenario:"A clean claim is submitted after the payer’s timely filing limit. The codes, documentation, and patient information are all correct.",
+question:"What is the most accurate interpretation?",
+options:[
+{text:"The claim can deny because payer deadlines apply even when coding is correct.", correct:true, why:"Correct. Timely filing is a payer rule. A claim can be clinically and technically correct but still deny for late submission."},
+{text:"The claim should pay because medical necessity overrides all filing deadlines.", correct:false, why:"Incorrect. Medical necessity does not override payer submission deadlines."},
+{text:"The claim should be rejected because the subscriber number must be incorrect.", correct:false, why:"Incorrect. Nothing indicates a front-end data rejection. The problem is late filing."},
+{text:"The claim should be upcoded to reflect the delay in administrative processing.", correct:false, why:"Incorrect. Upcoding for administrative delay would be improper and potentially fraudulent."}
+],
+designer:"This tests whether students understand that claims can fail for nonclinical reasons. Correct coding is necessary, but not always sufficient."
+},
+{
+topic:"Fraud, Abuse, and Compliance", flash:"compliance",
+scenario:"A practice routinely bills a higher-level office visit than documented because staff believe most patients are complex and the payer often pays it.",
+question:"Which compliance concern is strongest?",
+options:[
+{text:"Upcoding because the billed level exceeds what the documentation supports.", correct:true, why:"Correct. Billing a higher level than supported by documentation is upcoding and can be fraud or abuse depending on intent and pattern."},
+{text:"Unbundling because every office visit must be billed as separate procedures.", correct:false, why:"Incorrect. Unbundling means separately billing components that should be billed together; the scenario is level inflation."},
+{text:"Coordination of benefits because payer order was not checked before submission.", correct:false, why:"Incorrect. No primary/secondary payer sequencing issue is described."},
+{text:"Capitation because the provider receives a fixed payment per enrolled patient.", correct:false, why:"Incorrect. Capitation is a payment model, not the described coding misconduct."}
+],
+designer:"The test designer is looking for compliance vocabulary applied to behavior. Upcoding, unbundling, fraud, abuse, and errors are not interchangeable."
+},
+{
+topic:"Appeals + Documentation", flash:"denials",
+scenario:"A claim denies for lack of medical necessity. The chart contains progress notes, abnormal findings, and a provider order that were not sent with the original claim.",
+question:"What is the best next step for an appeal packet?",
+options:[
+{text:"Submit a focused appeal with documentation that supports the service as necessary.", correct:true, why:"Correct. An appeal should address the denial reason directly and include relevant supporting documentation."},
+{text:"Resubmit the identical claim repeatedly until the payer changes the decision.", correct:false, why:"Incorrect. Repeated duplicate submissions do not address the denial reason and can delay resolution."},
+{text:"Change the diagnosis to one that pays better and leave the note unchanged.", correct:false, why:"Incorrect. Codes must match documentation. Changing codes for payment without support is improper."},
+{text:"Send the patient a bill immediately because all denials become patient responsibility.", correct:false, why:"Incorrect. Not all denials transfer to the patient; appeal rights, payer policy, and financial notices matter."}
+],
+designer:"This asks students to think like a professional biller: identify the denial reason, gather evidence, and respond precisely."
+},
+{
+topic:"Claim Scrubbing + Clean Claims", flash:"claimcycle",
+scenario:"Before submission, billing software flags a claim because the date of service is missing on one service line and a diagnosis pointer refers to diagnosis E, but only A through D are listed.",
+question:"What is the best interpretation of the scrubber’s role?",
+options:[
+{text:"It catches preventable claim errors before submission to improve clean-claim acceptance.", correct:true, why:"Correct. Claim scrubbing identifies errors such as missing fields, invalid pointers, and formatting issues before payer submission."},
+{text:"It guarantees payment because the payer must accept every scrubbed claim.", correct:false, why:"Incorrect. Scrubbing improves claim quality but does not guarantee coverage, medical necessity, or payment."},
+{text:"It replaces provider documentation because software can determine medical necessity.", correct:false, why:"Incorrect. Software cannot replace provider documentation or clinical support."},
+{text:"It converts rejected claims into appeals without staff reviewing payer messages.", correct:false, why:"Incorrect. Staff still need to review messages and correct claim issues."}
+],
+designer:"The test designer wants students to understand technology as a support tool, not a magic payment guarantee."
+}
+];
+
+const flashTopics = {
+insurance:{title:"Insurance Basics + Patient Responsibility", cards:[
+["Copay","Fixed amount usually collected at the time of service, depending on plan rules."],
+["Deductible","Amount the patient must pay for covered services before the plan pays its share."],
+["Coinsurance","Percentage of allowed amount owed after deductible rules are met."],
+["Coordination of Benefits","Determines payer order when more than one insurance plan may apply."]
+]},
+plantypes:{title:"Plan Types + Payer Requirements", cards:[
+["HMO","Often emphasizes network use and primary-care coordination; referrals may be required."],
+["PPO","Usually offers more flexibility with specialists, but network and benefit rules still matter."],
+["Prior Authorization","Payer approval required before certain services; different from medical necessity."],
+["Referral","A plan-required direction from one provider to another, often PCP to specialist."]
+]},
+cms1500:{title:"CMS-1500 Claim Form Logic", cards:[
+["Diagnosis Pointer","Links service lines to diagnosis codes that support medical necessity."],
+["Service Line","Includes DOS, POS, procedure code, modifiers, diagnosis pointer, charges, and units."],
+["Box 24D","Procedure/HCPCS/CPT and modifiers are entered on the service line."],
+["Clean Claim","A claim with the required information needed for processing without preventable errors."]
+]},
+icd:{title:"ICD-10-CM Diagnosis Coding", cards:[
+["Confirmed Diagnosis","Code the provider’s documented diagnosis when it explains the encounter."],
+["Symptoms","Usually not separately coded when they are integral to a confirmed diagnosis."],
+["Unspecified Code","Used when documentation lacks specificity needed for a more detailed code."],
+["Do Not Infer","Do not code severity, organism, or cause unless documented by the provider."]
+]},
+cpt:{title:"CPT/HCPCS Procedure Coding", cards:[
+["CPT Code","Reports professional services and procedures performed by the provider."],
+["HCPCS Level II","Reports supplies, products, ambulance, DME, and some non-CPT services."],
+["Documentation Support","The note must show that each billed service was performed and medically needed."],
+["Units","Report the number of times a service or supply was provided, according to payer rules."]
+]},
+modifiers:{title:"Modifiers Reference Desk", cards:[
+["Modifier 25","Significant, separately identifiable E/M service on same day as another service/procedure."],
+["Modifier 59","Distinct procedural service; used when procedures are separate under specific circumstances."],
+["Modifier 24","Unrelated E/M service during a postoperative global period."],
+["Modifier 51","Multiple procedures performed during the same operative session, when applicable."]
+]},
+claimcycle:{title:"Claim Cycle, Rejections, Denials", cards:[
+["Rejection","Claim fails before adjudication because of missing, invalid, or format-related information."],
+["Denial","Payer processed the claim but refused payment based on policy, coverage, coding, or necessity."],
+["Adjudication","Payer reviews the claim and determines payment, adjustment, denial, and patient responsibility."],
+["Timely Filing","Payer deadline for submitting claims; late claims can deny even when coding is correct."]
+]},
+medicare:{title:"Medicare Basics", cards:[
+["Medicare","Federal health insurance program mainly for people 65+, certain disabilities, and ESRD/ALS criteria."],
+["Part A","Hospital/inpatient-related coverage."],
+["Part B","Outpatient/provider services and medically necessary professional care."],
+["Eligibility Check","Still required because coverage details, payer order, and plan type can change."]
+]},
+medicaid:{title:"Medicaid Basics", cards:[
+["Medicaid","Joint federal/state program for eligible low-income individuals and qualifying groups."],
+["Date-Specific Eligibility","Coverage must be verified for the specific date of service."],
+["Payer of Last Resort","Medicaid often pays after other liable third-party coverage."],
+["State Rules","Coverage, benefits, and billing requirements vary by state program."]
+]},
+compliance:{title:"Compliance, HIPAA, Stark, Fraud/Abuse", cards:[
+["Stark Law","Physician self-referral law for designated health services when financial relationships exist, unless exceptions apply."],
+["HIPAA","Protects health information while allowing appropriate use/disclosure for treatment, payment, and operations."],
+["Upcoding","Billing a higher-level service than documentation supports."],
+["Minimum Necessary","Share only the PHI needed for the task, unless an exception applies."]
+]},
+medicalnecessity:{title:"Medical Necessity", cards:[
+["Medical Necessity","The diagnosis and documentation must justify why the service was reasonable and needed."],
+["Diagnosis Pointer","The claim mechanism that links a service line to the supporting diagnosis."],
+["History Code Trap","Past history may not justify today’s test unless the current reason is documented."],
+["Payer Review","A payer may require documentation, LCD/NCD criteria, authorization, or policy support."]
+]},
+history:{title:"Insurance History + Laws", cards:[
+["Social Programs","Medicare and Medicaid changed coverage access and payer requirements."],
+["Regulatory Compliance","Billing is shaped by laws, payer policy, privacy rules, and fraud prevention."],
+["COBRA","Allows continuation of employer-based health coverage after qualifying events."],
+["EMTALA","Emergency medical screening and stabilization law for emergency departments."]
+]},
+denials:{title:"Denials + Appeals", cards:[
+["Appeal","Formal request for payer reconsideration after denial."],
+["Focused Evidence","Appeals should address the denial reason directly with relevant documentation."],
+["Duplicate Claim Trap","Repeating the same claim without correction often does not solve the problem."],
+["Patient Billing Caution","Do not automatically bill patients for every denial; review rules and notices."]
+]}
+};
+
+let order = [...Array(questions.length).keys()];
+let current = 0;
+let answers = {};
+let questionStart = Date.now();
+let started = Date.now();
+
+function shuffle(arr){ return arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]); }
+function fmt(ms){ const s=Math.round(ms/1000), m=Math.floor(s/60), r=s%60; return m+":"+String(r).padStart(2,"0"); }
+function init(){
+  order = shuffle(order);
+  questions.forEach(q=>q.shuffled = shuffle(q.options));
+  renderQuestion();
+  renderFlashcards();
+  setInterval(updateMetrics,1000);
+}
+function showSection(id, btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  if(id==='report') generateReport(false);
+}
+function renderQuestion(){
+  const qi = order[current], q = questions[qi];
+  questionStart = Date.now();
+  document.getElementById('qNum').textContent = `Question ${current+1} of ${questions.length}`;
+  document.getElementById('qTopic').textContent = q.topic;
+  document.getElementById('progressBar').style.width = `${((current)/questions.length)*100}%`;
+  document.getElementById('scenario').textContent = q.scenario;
+  document.getElementById('questionText').textContent = q.question;
+  const optBox = document.getElementById('options');
+  optBox.innerHTML = "";
+  q.shuffled.forEach((opt,i)=>{
+    const b=document.createElement('button');
+    b.className='option';
+    b.innerHTML=`<span class="letter">${ABC[i]}</span><span>${opt.text}</span>`;
+    b.onclick=()=>selectAnswer(qi,opt,i);
+    if(answers[qi]){
+      b.disabled=true;
+      if(opt.correct) b.classList.add('correct');
+      if(answers[qi].text===opt.text && !opt.correct) b.classList.add('wrong');
+    }
+    optBox.appendChild(b);
+  });
+  renderFeedback(qi);
+}
+function selectAnswer(qi,opt,idx){
+  if(answers[qi]) return;
+  answers[qi]={text:opt.text,correct:opt.correct,time:Date.now()-questionStart,topic:questions[qi].topic,flash:questions[qi].flash};
+  if(opt.correct) confetti();
+  renderQuestion();
+  updateMetrics();
+}
+function renderFeedback(qi){
+  const q=questions[qi], fb=document.getElementById('feedback');
+  if(!answers[qi]){fb.className='feedback'; fb.innerHTML=""; return;}
+  fb.className='feedback show';
+  const right = answers[qi].correct;
+  const topic = flashTopics[q.flash]?.title || q.topic;
+  fb.innerHTML = `
+    <h3>${right ? "Correct — strong billing judgment." : "Not quite — review the logic carefully."}</h3>
+    <p><b>Study link:</b> <a class="flash-link" href="#flashcards" onclick="showSection('flashcards')">${topic}</a></p>
+    <div class="rationale-grid">
+      ${q.shuffled.map((o,i)=>`<div class="rationale"><b>${ABC[i]}. ${o.correct ? "Correct" : "Incorrect"}:</b> ${o.why}</div>`).join("")}
+    </div>
+    <div class="designer"><b>Test designer lens:</b> ${q.designer}</div>
+  `;
+}
+function nextQuestion(){ if(current<questions.length-1){current++;renderQuestion();} else {document.getElementById('progressBar').style.width='100%'; showSection('report'); generateReport();}}
+function prevQuestion(){ if(current>0){current--;renderQuestion();}}
+function resetQuiz(){
+  if(!confirm("Reset answers and timing?")) return;
+  answers={}; current=0; started=Date.now(); order=shuffle([...Array(questions.length).keys()]); questions.forEach(q=>q.shuffled=shuffle(q.options)); renderQuestion(); generateReport(false);
+}
+function renderFlashcards(){
+  const container=document.getElementById('flashcardContainer');
+  container.innerHTML="";
+  Object.entries(flashTopics).forEach(([key,t])=>{
+    const wrap=document.createElement('div');
+    wrap.className='flash-topic col-6';
+    wrap.id='flash-'+key;
+    wrap.innerHTML=`<h3>${t.title}</h3><div class="flashcards">${t.cards.map(c=>`
+      <div class="flashcard" onclick="this.classList.toggle('flip')">
+        <div class="flash-inner">
+          <div class="face front"><span class="topic-pill">Click to flip</span><h4>${c[0]}</h4><p>What should a CBCS student remember?</p></div>
+          <div class="face back"><span class="topic-pill">${t.title}</span><h4>${c[0]}</h4><p>${c[1]}</p></div>
+        </div>
+      </div>`).join("")}</div>`;
+    container.appendChild(wrap);
+  });
+}
+function updateMetrics(){
+  const answered=Object.keys(answers).length;
+  const correct=Object.values(answers).filter(a=>a.correct).length;
+  document.getElementById('scoreMetric').textContent=`${correct}/${questions.length}`;
+  document.getElementById('timeMetric').textContent=fmt(Date.now()-started);
+  const misses=Object.values(answers).filter(a=>!a.correct);
+  const counts={}; misses.forEach(m=>counts[m.topic]=(counts[m.topic]||0)+1);
+  const worst=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('needsMetric').textContent=worst?worst[0]:"—";
+}
+function generateReport(switchTab=true){
+  const vals=Object.values(answers);
+  const correct=vals.filter(a=>a.correct).length;
+  const missed=vals.filter(a=>!a.correct);
+  const byTopic={};
+  missed.forEach(m=>{byTopic[m.topic]=(byTopic[m.topic]||0)+1});
+  const topicLines=Object.entries(byTopic).sort((a,b)=>b[1]-a[1]).map(([t,n])=>`- ${t}: ${n} missed`).join("\n") || "- No missed topics yet.";
+  const wrongQs = order.map((qi,idx)=>({qi,idx})).filter(x=>answers[x.qi] && !answers[x.qi].correct).map(x=>`Q${x.idx+1}: ${questions[x.qi].topic} — ${questions[x.qi].question}`).join("\n") || "No incorrect answers recorded yet.";
+  const reflection=document.getElementById('studentReflection').value.trim() || "No student reflection entered yet.";
+  const avg = vals.length ? vals.reduce((s,a)=>s+a.time,0)/vals.length : 0;
+  const summary =
+`NHA CBCS Practice Lab Summary
+
+Score: ${correct}/${questions.length}
+Questions answered: ${vals.length}/${questions.length}
+Total active time: ${fmt(Date.now()-started)}
+Average time per answered question: ${fmt(avg)}
+
+Highest-priority review topics:
+${topicLines}
+
+Incorrect question review:
+${wrongQs}
+
+Student reflection:
+${reflection}
+
+Recommended next study actions:
+1. Revisit the flashcards for each missed topic.
+2. For every denial/rejection question missed, name the claim-cycle stage first.
+3. For every ICD/CPT/CMS-1500 question missed, explain the link among documentation, diagnosis, procedure, modifier, and payer rule.
+4. Retake the questions and focus on the test designer lens, not only the correct answer.`;
+  document.getElementById('summary').textContent=summary;
+  updateMetrics();
+  if(switchTab) showSection('report');
+}
+function copyReport(){
+  generateReport(false);
+  navigator.clipboard.writeText(document.getElementById('summary').textContent).then(()=>alert("Summary copied."));
+}
+function confetti(){
+  const colors=["#ff5ea8","#3157d5","#19a7ce","#1f9d63","#f49b2f","#7a3ff2","#f8c630"];
+  for(let i=0;i<70;i++){
+    const c=document.createElement('div');
+    c.className='confetti';
+    c.style.left=Math.random()*100+'vw';
+    c.style.background=colors[Math.floor(Math.random()*colors.length)];
+    c.style.animationDelay=(Math.random()*250)+'ms';
+    c.style.transform=`rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),1400);
+  }
+}
+init();
+</script>
+</body>
+</html>
